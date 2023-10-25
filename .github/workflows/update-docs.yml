@@ -25,17 +25,21 @@ jobs:
         with:
           repository: metabase/metabase
           path: metabase
-      - name: Build docs
-        run: cd metabase && clojure -M:marginalia
       - name: Checkout backend-docs repo
         uses: actions/checkout@v4
+        with:
+          path: backend-docs
+      - name: Build docs
+        run: cd metabase && clojure -M:marginalia
       - name: Update docs
         run: |
+          cd $GITHUB_WORKSPACE/backend-docs
+
           git config user.name github-actions
           git config user.email github-actions@github.com
 
           cp metabase/backend-docs/uberdoc.html docs/index.html
-          git add docs
-          git commit -m "Update backend docs $(date)"
+          git add docs/
+          git commit -m "Update backend docs on $(date)"
           git push
 
