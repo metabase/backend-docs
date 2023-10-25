@@ -1,0 +1,41 @@
+name: Update Backend Docs
+
+on:
+  schedule:
+    - cron: '17 1,9,17 * * *' # every 8 hours
+  workflow_dispatch:
+
+jobs:
+  update-backend-docs:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Prepare JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'temurin'
+      - name: Install Clojure CLI
+        shell: bash
+        run: |
+          curl -O https://download.clojure.org/install/linux-install-1.11.1.1262.sh &&
+          sudo bash ./linux-install-1.11.1.1262.sh
+      - name: Checkout metabase repo
+        uses: actions/checkout@v4
+        with:
+          repository: metabase/metabase
+          path: metabase
+      - name: Build docs
+        run: cd metabase && clojure -M:marginalia
+      - name: Checkout backend-docs repo
+        uses: actions/checkout@v4
+      - name: Update docs
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+          cp metabase/backend-docs/uberdoc.html docs/index.html
+          git add docs
+          git commit -m "Update backend docs $(date)"
+          git push
+
