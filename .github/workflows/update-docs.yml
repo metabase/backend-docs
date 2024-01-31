@@ -41,6 +41,7 @@ jobs:
 
           cp $GITHUB_WORKSPACE/metabase/backend-docs/uberdoc.html index.html
           git add index.html
+          sed -i 's/<html><head>/<html><head><meta name="robots" content="noindex">/' index.html
           git commit -m "Update backend docs on $(date)"
           git push
 
